@@ -35,7 +35,7 @@ python3 cyberblack.py
 
 
 
-'''
+
 4. run tool and install tools from it
 
 
