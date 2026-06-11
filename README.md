@@ -64,5 +64,4 @@ python3 cyberblack.py
 - MIT — see [LICENSE](LICENSE)
 
 **Contact / Security Reporting**
-- For security reports or responsible disclosure, open an issue or contact the repository owner with reproduction steps and impact assessment.
-
+- For security reports or responsible disclosure, open an issue or contact me on anonyy063@gmail.com -
