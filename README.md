@@ -2,6 +2,18 @@
 
 Enterprise-grade CEH · OSINT · Pentesting Toolkit
 
+
+```
+   ██████╗██╗   ██╗██████╗ ███████╗██████╗ ██████╗ ██╗      █████╗  ██████╗██╗  ██╗
+██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔══██╗██║     ██╔══██╗██╔════╝██║ ██╔╝
+██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██████╔╝██║     ███████║██║     █████╔╝
+██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██╔══██╗██║     ██╔══██║██║     ██╔═██╗
+╚██████╗   ██║   ██████╔╝███████╗██║  ██║██████╔╝███████╗██║  ██║╚██████╗██║  ██╗
+ ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+                                              CYBERBLACK-OPS v1.0
+```
+
+
 CYBERBLACK-OPS is a compact, modular toolkit designed for professional security teams and advanced practitioners focused on reconnaissance, data enrichment, and automated workflows for red-team and OSINT operations. It prioritizes repeatable, auditable reconnaissance and integrates easily into CI/CD, SOC playbooks, and security testing pipelines.
 
 **Warning:** Use only on targets for which you have explicit authorization. Unauthorized testing is illegal and unethical.
