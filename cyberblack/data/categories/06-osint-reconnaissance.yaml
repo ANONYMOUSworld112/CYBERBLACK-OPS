@@ -1,0 +1,110 @@
+id: '6'
+name: OSINT & Reconnaissance
+icon: 🔍
+color: bright_blue
+description: Email harvesting, subdomain discovery, DNS recon, social media OSINT
+tools:
+- name: Amass
+  binary: amass
+  tagline: In-Depth Attack Surface Mapping — 50+ OSINT Sources
+  description: 'Most comprehensive subdomain enumeration tool. Uses 50+ sources: Shodan,
+    VirusTotal, CertSpotter, SecurityTrails, DNS brute force.'
+  risk: low
+  install: sudo apt install amass -y 2>/dev/null || sudo snap install amass
+  syntax: amass enum -d <domain> [options]
+  flags:
+  - flag: enum -d <domain>
+    description: Passive subdomain enum
+  - flag: enum -active -d
+    description: Active enumeration
+  - flag: enum -brute -d
+    description: Brute force subdomains
+  - flag: -ip
+    description: Show IP addresses
+  - flag: -o <file>
+    description: Output to file
+  - flag: -json <file>
+    description: JSON output
+  examples:
+  - description: Passive enum
+    command: amass enum -d target.com
+  - description: With IPs
+    command: amass enum -d target.com -ip
+  - description: Active + brute
+    command: amass enum -active -brute -d target.com
+  - description: Save results
+    command: amass enum -d target.com -o amass.txt
+  - description: Network visualization
+    command: amass viz -d3 -d target.com -o network.html
+  tips:
+  - Configure API keys at ~/.config/amass/config.ini for 10x results
+  - Passive mode — no direct contact with target
+  - D3 visualization creates beautiful attack surface maps
+- name: Subfinder
+  binary: subfinder
+  tagline: Fast Passive Subdomain Discovery
+  description: 'Discovers subdomains using passive OSINT sources: crt.sh, CertSpotter,
+    VirusTotal, SecurityTrails and more.'
+  risk: low
+  install: sudo apt install subfinder -y 2>/dev/null || sudo snap install subfinder
+    2>/dev/null || (sudo apt install -y golang-go && go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+    && sudo cp ~/go/bin/subfinder /usr/local/bin/)
+  syntax: subfinder -d <domain> [options]
+  flags:
+  - flag: -d <domain>
+    description: Target domain
+  - flag: -dL <file>
+    description: Domain list
+  - flag: -o <file>
+    description: Output file
+  - flag: -silent
+    description: Results only
+  - flag: -all
+    description: All sources including slow ones
+  examples:
+  - description: Basic enum
+    command: subfinder -d target.com
+  - description: Silent (results only)
+    command: subfinder -d target.com -silent
+  - description: Multiple domains
+    command: subfinder -dL domains.txt -o subs.txt
+  - description: Pipe to nmap
+    command: subfinder -d target.com -silent | xargs -I{} nmap -T4 -F {}
+  tips:
+  - Configure API keys at ~/.config/subfinder/provider-config.yaml
+  - Faster than amass for pure passive subdomain discovery
+  - Pipe to httpx to check which subdomains are live
+- name: Sherlock
+  binary: sherlock
+  tagline: Social Media Username Hunt — 400+ Platforms
+  description: Finds social media accounts across 400+ platforms by username. Twitter,
+    Reddit, GitHub, Instagram, LinkedIn, TikTok, and more.
+  risk: low
+  install: sudo apt install sherlock
+  syntax: sherlock <username> [options]
+  flags:
+  - flag: --print-found
+    description: Show only found accounts
+  - flag: --output <file>
+    description: Save output
+  - flag: --csv
+    description: CSV output
+  - flag: --browse
+    description: Open links in browser
+  - flag: --tor
+    description: Route through Tor
+  examples:
+  - description: Basic search
+    command: sherlock johndoe
+  - description: Multiple usernames
+    command: sherlock johndoe john.doe john_doe
+  - description: Save results
+    command: sherlock johndoe --output results.txt
+  - description: CSV export
+    command: sherlock johndoe --csv
+  - description: Via Tor
+    command: sherlock johndoe --tor
+  tips:
+  - GitHub often reveals real name, location, employer
+  - Cross-reference accounts to build comprehensive target profile
+  - Use --tor to protect your identity during investigations

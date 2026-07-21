@@ -1,0 +1,138 @@
+id: '2'
+name: WiFi & Wireless Attacks
+icon: 📡
+color: bright_yellow
+description: Monitor mode, packet capture, WPA/WEP cracking, WPS attacks
+tools:
+- name: Airmon-ng
+  binary: airmon-ng
+  tagline: Enable Monitor Mode on Wireless Interface
+  description: First step in any WiFi attack — puts wireless card in monitor mode
+    to capture all nearby 802.11 frames.
+  risk: high
+  install: sudo apt install aircrack-ng -y
+  syntax: airmon-ng [start|stop|check] [interface]
+  flags:
+  - flag: start <iface>
+    description: Enable monitor mode
+  - flag: stop <iface>
+    description: Disable monitor mode
+  - flag: check
+    description: Check interfering processes
+  - flag: check kill
+    description: Kill interfering processes
+  - flag: start <iface> <ch>
+    description: Enable on specific channel
+  examples:
+  - description: Kill interfering processes
+    command: sudo airmon-ng check kill
+  - description: Start monitor on wlan0
+    command: sudo airmon-ng start wlan0
+  - description: Verify monitor mode
+    command: iwconfig wlan0mon
+  - description: Stop monitor mode
+    command: sudo airmon-ng stop wlan0mon
+  - description: Full prep workflow
+    command: sudo airmon-ng check kill && sudo airmon-ng start wlan0
+  tips:
+  - Always 'check kill' first to stop NetworkManager
+  - Monitor interface named wlan0mon after enabling
+  - 'Restore: sudo airmon-ng stop wlan0mon && sudo systemctl start NetworkManager'
+- name: Airodump-ng
+  binary: airodump-ng
+  tagline: Capture 802.11 Frames & Grab WPA Handshakes
+  description: Captures raw wireless packets. Shows nearby APs/clients. Captures the
+    WPA 4-way handshake needed for offline cracking.
+  risk: high
+  install: sudo apt install aircrack-ng -y
+  syntax: airodump-ng [options] <monitor_interface>
+  flags:
+  - flag: --bssid <MAC>
+    description: Filter to specific AP
+  - flag: -c <ch>
+    description: Lock to channel
+  - flag: -w <prefix>
+    description: Write capture to files
+  - flag: --wps
+    description: Show WPS info
+  - flag: --band <a/bg/abg>
+    description: Frequency band to scan
+  examples:
+  - description: Scan all nearby WiFi
+    command: sudo airodump-ng wlan0mon
+  - description: Lock to channel 6
+    command: sudo airodump-ng -c 6 wlan0mon
+  - description: Capture handshake (targeted)
+    command: sudo airodump-ng --bssid AA:BB:CC:DD:EE:FF -c 6 -w capture wlan0mon
+  - description: Show WPS APs
+    command: sudo airodump-ng --wps wlan0mon
+  - description: 5GHz band scan
+    command: sudo airodump-ng --band a wlan0mon
+  tips:
+  - 'Watch top-right for ''WPA handshake: XX:XX:XX:XX'''
+  - Run aireplay-ng deauth alongside to force handshake
+  - .cap file feeds into aircrack-ng or hashcat
+- name: Aireplay-ng
+  binary: aireplay-ng
+  tagline: Wireless Packet Injection & Deauthentication Attack
+  description: Injects frames into wireless network. Deauth attack forces clients
+    to reconnect — triggering WPA handshake capture.
+  risk: critical
+  install: sudo apt install aircrack-ng -y
+  syntax: aireplay-ng [attack] -a <BSSID> <interface>
+  flags:
+  - flag: -0 <n>
+    description: Deauth attack (0 = continuous)
+  - flag: -1 <delay>
+    description: Fake authentication
+  - flag: '-3'
+    description: ARP replay (WEP)
+  - flag: '-9'
+    description: Injection test
+  - flag: -a <BSSID>
+    description: AP MAC address
+  - flag: -c <client>
+    description: Target client MAC
+  examples:
+  - description: Test injection capability
+    command: sudo aireplay-ng -9 wlan0mon
+  - description: Deauth all clients (5 pkts)
+    command: sudo aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF wlan0mon
+  - description: Deauth specific client
+    command: sudo aireplay-ng -0 10 -a <AP_MAC> -c <CLIENT_MAC> wlan0mon
+  - description: Continuous deauth (handshake)
+    command: sudo aireplay-ng -0 0 -a <BSSID> wlan0mon
+  tips:
+  - Run WHILE airodump-ng is capturing
+  - -0 5 is less disruptive than -0 0 (infinite)
+  - Must be on same channel as target AP
+- name: Aircrack-ng
+  binary: aircrack-ng
+  tagline: WEP & WPA/WPA2 PSK Key Cracker
+  description: Offline cracker for WEP keys and WPA/WPA2 PSK using dictionary attack
+    on captured handshakes.
+  risk: high
+  install: sudo apt install aircrack-ng -y
+  syntax: aircrack-ng [options] <capture.cap>
+  flags:
+  - flag: -w <wordlist>
+    description: Wordlist for WPA attack
+  - flag: -b <BSSID>
+    description: Target AP MAC
+  - flag: -e <SSID>
+    description: Target network name
+  - flag: -J <file>
+    description: Export to hashcat hccapx format
+  examples:
+  - description: WPA crack with rockyou
+    command: aircrack-ng -w /usr/share/wordlists/rockyou.txt -b <BSSID> capture.cap
+  - description: Target by SSID
+    command: aircrack-ng -w /usr/share/wordlists/rockyou.txt -e 'NetworkName' capture.cap
+  - description: Export to hashcat
+    command: aircrack-ng -J hashcat_input capture.cap
+  - description: WEP crack
+    command: aircrack-ng -b <BSSID> capture.cap
+  tips:
+  - 'For GPU cracking: convert to hccapx → hashcat -m 2500 hash.hccapx wordlist.txt'
+  - 'rockyou.txt: gunzip /usr/share/wordlists/rockyou.txt.gz'
+  - 'FULL FLOW: airmon-ng → airodump-ng → aireplay-ng → aircrack-ng'

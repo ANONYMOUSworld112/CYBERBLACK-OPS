@@ -1,0 +1,141 @@
+id: '10'
+name: Forensics & Analysis
+icon: 🔬
+color: bright_white
+description: Memory forensics, file carving, firmware analysis, metadata, digital
+  forensics
+tools:
+- name: Binwalk
+  binary: binwalk
+  tagline: Firmware & Binary Analysis Tool
+  description: Analyzes and extracts firmware images and embedded files. Used for
+    IoT device firmware analysis, embedded Linux extraction.
+  risk: low
+  install: sudo apt install binwalk -y
+  syntax: binwalk [options] <file>
+  flags:
+  - flag: -e
+    description: Extract detected files/filesystems
+  - flag: -E
+    description: Entropy analysis (detect encryption/compression)
+  - flag: -A
+    description: Scan for executable code
+  - flag: -M
+    description: Recursive extraction
+  - flag: -dd '<sig>:<ext>'
+    description: Extract specific signature type
+  examples:
+  - description: Analyze firmware
+    command: binwalk firmware.bin
+  - description: Extract embedded files
+    command: binwalk -e firmware.bin
+  - description: Recursive extraction
+    command: binwalk -Me firmware.bin
+  - description: Entropy analysis
+    command: binwalk -E firmware.bin
+  - description: Scan for executable code
+    command: binwalk -A firmware.bin
+  tips:
+  - Extracted files go to _<filename>.extracted/ directory
+  - High entropy regions = compressed/encrypted data
+  - 'After extraction: look for etc/passwd, configuration files, hardcoded creds'
+- name: Foremost
+  binary: foremost
+  tagline: File Carving & Data Recovery Tool
+  description: Recovers files from disk images or memory dumps based on headers/footers.
+    Recovers deleted JPEG, PDF, ZIP, EXE, MP4, and many more.
+  risk: low
+  install: sudo apt install foremost -y
+  syntax: foremost [options] -i <inputfile>
+  flags:
+  - flag: -i <file>
+    description: Input file / disk image
+  - flag: -o <dir>
+    description: Output directory
+  - flag: -t <types>
+    description: 'File types to recover: jpg, pdf, zip, exe, all'
+  - flag: -c <conf>
+    description: Configuration file
+  - flag: -v
+    description: Verbose output
+  examples:
+  - description: Recover all file types
+    command: foremost -i disk.img -o recovered/
+  - description: Recover JPEGs only
+    command: foremost -t jpg -i disk.img -o recovered/
+  - description: Recover from /dev
+    command: sudo foremost -i /dev/sdb -o recovered/
+  - description: Multiple types
+    command: foremost -t jpg,pdf,zip -i dump.dd -o output/
+  tips:
+  - Works on raw disk images, memory dumps, and even live devices
+  - Output directory contains audit.txt — check for found files summary
+  - 'Use with dd: dd if=/dev/sdb of=disk.img bs=512 then run foremost'
+- name: Exiftool
+  binary: exiftool
+  tagline: Metadata Extractor — Images, PDFs, Documents
+  description: Reads, writes, and edits metadata in images, audio, video, PDFs, Word
+    docs. Reveals camera info, GPS coordinates, author, software, creation dates.
+  risk: low
+  install: sudo apt install libimage-exiftool-perl -y
+  syntax: exiftool [options] <file>
+  flags:
+  - flag: -a
+    description: Show all duplicate tags
+  - flag: -u
+    description: Show unknown/undocumented tags
+  - flag: -G
+    description: Show group names
+  - flag: -csv
+    description: CSV output
+  - flag: -delete_all
+    description: Remove all metadata
+  - flag: -GPS*
+    description: GPS-related tags only
+  examples:
+  - description: Read all metadata
+    command: exiftool image.jpg
+  - description: GPS coordinates
+    command: exiftool -GPS* image.jpg
+  - description: Bulk analyze directory
+    command: exiftool /path/to/directory/
+  - description: CSV output
+    command: exiftool -csv *.jpg > metadata.csv
+  - description: Remove all metadata
+    command: exiftool -delete_all file.jpg
+  - description: Find images with GPS
+    command: exiftool -r -if '$GPSLatitude' /path/to/photos/
+  tips:
+  - GPS in EXIF = exact location where photo was taken
+  - Author/Software fields reveal tools used — useful in forensics
+  - 'Remove metadata before sharing sensitive documents: -delete_all flag'
+- name: Autopsy
+  binary: autopsy
+  tagline: Digital Forensics Platform (GUI)
+  description: Full digital forensics platform. Analyzes disk images, file recovery,
+    keyword search, browser history, email extraction, timeline analysis.
+  risk: low
+  install: sudo apt install autopsy -y
+  syntax: autopsy  (browser-based GUI at http://localhost:9999/autopsy)
+  flags:
+  - flag: New Case
+    description: Create new forensic investigation case
+  - flag: Add Host
+    description: Add target host to case
+  - flag: Add Image
+    description: Add disk image for analysis
+  - flag: Analyze
+    description: Run all analysis modules
+  examples:
+  - description: Start Autopsy
+    command: sudo autopsy
+  - description: Access GUI
+    command: '# Browse to http://localhost:9999/autopsy'
+  - description: Create disk image (before autopsy)
+    command: sudo dd if=/dev/sdb of=disk.img bs=4096 status=progress
+  - description: Hash verification
+    command: md5sum disk.img > disk.img.md5
+  tips:
+  - Always create MD5/SHA256 hash of evidence BEFORE analysis (chain of custody)
+  - 'dd command to image a drive: sudo dd if=/dev/sdb of=evidence.img bs=4096'
+  - Autopsy module 'Interesting Files' is best starting point for quick analysis

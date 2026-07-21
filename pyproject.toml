@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyberblack"
+version = "2.1.0"
+description = "Advanced Cybersecurity Terminal Toolkit"
+authors = [{name = "CyberBlack"}]
+requires-python = ">=3.11"
+dependencies = [
+    "rich>=13.0",
+    "psutil>=5.9",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+cyberblack = "cyberblack.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cyberblack", "cyberblack.*"]
+
+[tool.setuptools.package-data]
+cyberblack = ["data/categories/*.yaml"]

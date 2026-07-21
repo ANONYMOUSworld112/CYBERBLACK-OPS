@@ -1,0 +1,193 @@
+id: '4'
+name: Web Application Testing
+icon: 🕷️
+color: bright_magenta
+description: SQLi, XSS, directory busting, fuzzing, WAF detection, fingerprinting
+tools:
+- name: SQLmap
+  binary: sqlmap
+  tagline: Automatic SQL Injection & Database Takeover
+  description: World's most powerful automated SQL injection tool. Detects and exploits
+    SQLi, dumps DBs, reads files, executes OS commands.
+  risk: critical
+  install: sudo apt install sqlmap -y
+  syntax: sqlmap [options] -u '<target URL>'
+  flags:
+  - flag: -u <url>
+    description: Target URL with parameter
+  - flag: -r <file>
+    description: Burp Suite request file
+  - flag: --dbs
+    description: List all databases
+  - flag: -D <db> --tables
+    description: List tables in DB
+  - flag: -D <db> -T <tbl> --dump
+    description: Dump table data
+  - flag: --batch
+    description: Auto-confirm all prompts
+  - flag: --level=5 --risk=3
+    description: Maximum depth testing
+  - flag: --tamper=<script>
+    description: WAF bypass script
+  - flag: --os-shell
+    description: Get OS command shell via SQLi
+  - flag: --random-agent
+    description: Randomize User-Agent
+  examples:
+  - description: Test GET parameter
+    command: sqlmap -u 'http://target.com/page.php?id=1'
+  - description: Test POST with Burp file
+    command: sqlmap -r burp_request.txt
+  - description: List databases
+    command: sqlmap -u 'http://target.com/?id=1' --dbs
+  - description: Dump users table
+    command: sqlmap -u 'http://target.com/?id=1' -D mydb -T users --dump
+  - description: OS shell via SQLi
+    command: sqlmap -u 'http://target.com/?id=1' --os-shell
+  - description: WAF bypass
+    command: sqlmap -u 'http://target.com/?id=1' --tamper=between,randomcase --random-agent
+  - description: With session cookie
+    command: sqlmap -u 'http://target.com/?id=1' --cookie='PHPSESSID=abc'
+  tips:
+  - Always use --random-agent to bypass User-Agent WAF blocks
+  - Use -r with Burp captured requests for accurate POST testing
+  - --tamper=space2comment bypasses many basic WAFs
+- name: Nikto
+  binary: nikto
+  tagline: Web Server Vulnerability Scanner (6700+ Tests)
+  description: Scans web servers for dangerous files, outdated versions, misconfigurations.
+    Tests 6700+ potential vulnerabilities.
+  risk: medium
+  install: sudo apt install nikto -y
+  syntax: nikto -h <host> [options]
+  flags:
+  - flag: -h <host>
+    description: Target host/URL
+  - flag: -p <port>
+    description: Port
+  - flag: -ssl
+    description: Force HTTPS
+  - flag: -o <file>
+    description: Output file
+  - flag: -Format html
+    description: HTML report
+  - flag: -C all
+    description: Check all CGI dirs
+  - flag: -id <user:pass>
+    description: Basic auth credentials
+  examples:
+  - description: Basic scan
+    command: nikto -h http://192.168.1.1
+  - description: HTTPS scan
+    command: nikto -h https://192.168.1.1 -ssl
+  - description: Custom port
+    command: nikto -h 192.168.1.1 -p 8080
+  - description: HTML report
+    command: nikto -h http://target.com -o report.html -Format html
+  - description: Through Burp proxy
+    command: nikto -h http://target.com -useproxy http://127.0.0.1:8080
+  tips:
+  - Very LOUD — always detectable by IDS/WAF
+  - Good for quick high-level web overview
+  - High false positive rate — manual verification needed
+- name: Gobuster
+  binary: gobuster
+  tagline: Directory, File & DNS Brute Forcer (Go, Fast)
+  description: Fast directory/DNS brute forcer written in Go. Finds hidden admin panels,
+    backup files, APIs, upload dirs.
+  risk: medium
+  install: sudo apt install gobuster -y
+  syntax: gobuster dir -u <url> -w <wordlist> [options]
+  flags:
+  - flag: dir
+    description: Directory/file brute force mode
+  - flag: dns
+    description: DNS subdomain mode
+  - flag: -u <url>
+    description: Target URL
+  - flag: -w <wordlist>
+    description: Wordlist file
+  - flag: -x <exts>
+    description: 'File extensions: php,html,txt,bak'
+  - flag: -t <n>
+    description: Threads
+  - flag: -o <file>
+    description: Output file
+  - flag: -k
+    description: Skip TLS verification
+  examples:
+  - description: Directory scan
+    command: gobuster dir -u http://target.com -w /usr/share/wordlists/dirb/common.txt
+  - description: With PHP extension
+    command: gobuster dir -u http://target.com -w common.txt -x php,html,txt
+  - description: Fast with 50 threads
+    command: gobuster dir -u http://target.com -w big.txt -t 50
+  - description: DNS subdomain
+    command: gobuster dns -d target.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+  - description: With auth cookie
+    command: gobuster dir -u http://target.com -w common.txt -c 'PHPSESSID=abc'
+  tips:
+  - 'SecLists: git clone https://github.com/danielmiessler/SecLists'
+  - 'Best combo: -x php,html,txt,bak,old,zip for file hunting'
+  - -t 50-100 for local; lower for internet targets
+- name: WafW00f
+  binary: wafw00f
+  tagline: WAF Detection — Identify Firewall Before Attacking
+  description: 'Detects 150+ WAF products: Cloudflare, ModSecurity, AWS WAF, Imperva,
+    F5 BIG-IP, Sucuri and more.'
+  risk: low
+  install: sudo apt install wafw00f -y
+  syntax: wafw00f [options] <url>
+  flags:
+  - flag: -a
+    description: Check all WAFs, don't stop at first detect
+  - flag: -v
+    description: Verbose
+  - flag: -o <file>
+    description: Output file
+  - flag: -f json
+    description: JSON format
+  examples:
+  - description: Detect WAF
+    command: wafw00f http://target.com
+  - description: Check all possible WAFs
+    command: wafw00f -a http://target.com
+  - description: Verbose
+    command: wafw00f -v http://target.com
+  - description: JSON output
+    command: wafw00f -o result.json -f json http://target.com
+  tips:
+  - Always run BEFORE active scanning — know your adversary
+  - Cloudflare → sqlmap --tamper=charunicodeescape
+  - ModSecurity → sqlmap --tamper=randomcase,space2comment
+- name: WhatWeb
+  binary: whatweb
+  tagline: Web Technology Fingerprinting (1800+ Plugins)
+  description: Identifies CMS, web servers, JS libraries, analytics, versions. Detects
+    WordPress, Joomla, Drupal, Apache, Nginx, IIS and more.
+  risk: low
+  install: sudo apt install whatweb -y
+  syntax: whatweb [options] <target>
+  flags:
+  - flag: -v
+    description: Verbose output
+  - flag: -a <1-4>
+    description: Aggression level (1=stealth, 4=heavy)
+  - flag: -o <file>
+    description: Log results
+  - flag: --log-json
+    description: JSON output
+  examples:
+  - description: Fingerprint site
+    command: whatweb http://target.com
+  - description: Verbose
+    command: whatweb -v http://target.com
+  - description: Aggressive
+    command: whatweb -a 3 http://target.com
+  - description: Scan IP range
+    command: whatweb 192.168.1.0/24
+  - description: JSON output
+    command: whatweb --log-json=results.json http://target.com
+  tips:
+  - WordPress version detected → map to known CVEs
+  - Level 1 = stealthy, level 4 = aggressive (many requests)

@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: cyberblack
+Version: 2.1.0
+Summary: Advanced Cybersecurity Terminal Toolkit
+Author: CyberBlack
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: rich>=13.0
+Requires-Dist: psutil>=5.9
+Requires-Dist: pyyaml>=6.0
+Dynamic: license-file

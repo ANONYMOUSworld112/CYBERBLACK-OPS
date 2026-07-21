@@ -1,0 +1,181 @@
+id: '7'
+name: Packet Analysis & MITM
+icon: 📦
+color: magenta
+description: Packet capture, traffic analysis, ARP spoofing, man-in-the-middle attacks
+tools:
+- name: Wireshark
+  binary: wireshark
+  tagline: '#1 Network Protocol Analyzer (GUI)'
+  description: World's foremost packet analyzer. Captures and inspects every packet
+    at deepest level. Used by SOC analysts, network engineers, and pentesters.
+  risk: low
+  install: sudo apt install wireshark -y && sudo usermod -aG wireshark $USER
+  syntax: wireshark  or  sudo wireshark -i eth0 -k
+  flags:
+  - flag: -i <iface>
+    description: Capture interface
+  - flag: -r <file>
+    description: Read pcap file
+  - flag: -k
+    description: Start capture immediately
+  - flag: -f <filter>
+    description: BPF capture filter
+  - flag: -w <file>
+    description: Write to file
+  examples:
+  - description: Open GUI
+    command: wireshark
+  - description: Capture on eth0
+    command: sudo wireshark -i eth0 -k
+  - description: Open pcap file
+    command: wireshark -r capture.pcap
+  - description: 'Filter: HTTP only'
+    command: '# Display filter bar: http'
+  - description: 'Filter: specific IP'
+    command: '# ip.addr == 192.168.1.1'
+  - description: 'Filter: POST requests'
+    command: '# http.request.method == POST'
+  - description: Follow TCP stream
+    command: '# Right-click packet → Follow → TCP Stream'
+  - description: Export HTTP objects
+    command: '# File → Export Objects → HTTP'
+  tips:
+  - 'Key filters: http, dns, ftp, smtp, arp, tcp, udp, icmp'
+  - 'Ctrl+F: find text in packets — search ''password'''
+  - Statistics → Protocol Hierarchy for quick traffic overview
+  - 'Add to wireshark group: sudo usermod -aG wireshark $USER then re-login'
+- name: Tcpdump
+  binary: tcpdump
+  tagline: Classic Command-Line Packet Sniffer
+  description: Pre-installed on almost every Unix/Linux system. Captures to .pcap
+    files compatible with Wireshark. The go-to on remote/headless systems.
+  risk: low
+  install: sudo apt install tcpdump -y
+  syntax: tcpdump [options] [filter expression]
+  flags:
+  - flag: -i <iface>
+    description: Interface (-i any = all interfaces)
+  - flag: -w <file>
+    description: Write to pcap
+  - flag: -r <file>
+    description: Read pcap
+  - flag: -n / -nn
+    description: No DNS/port resolution
+  - flag: -A
+    description: Print as ASCII
+  - flag: -X
+    description: Print hex + ASCII
+  - flag: -c <n>
+    description: Capture n packets then exit
+  - flag: -s 0
+    description: Full packet capture
+  examples:
+  - description: Capture all traffic
+    command: sudo tcpdump -i eth0
+  - description: Capture to file
+    command: sudo tcpdump -i eth0 -w capture.pcap
+  - description: HTTP traffic
+    command: sudo tcpdump -i eth0 -nn port 80 or port 443
+  - description: Specific host
+    command: sudo tcpdump -i eth0 host 192.168.1.100
+  - description: Capture with ASCII content
+    command: sudo tcpdump -i eth0 -A -nn port 80
+  - description: Find plaintext credentials
+    command: sudo tcpdump -i eth0 -A -s 0 port 80 | grep -i 'password\|user'
+  - description: TCP SYN packets only
+    command: sudo tcpdump -i eth0 'tcp[tcpflags] & (tcp-syn) != 0'
+  tips:
+  - 'BPF filter syntax: host, net, port, src, dst, tcp, udp, and, or, not'
+  - -w saves pcap → open in Wireshark for GUI analysis
+  - Use -s 0 to capture full packets (no truncation)
+- name: Ettercap
+  binary: ettercap
+  tagline: Comprehensive MITM Attack Suite
+  description: Man-in-the-middle attack suite. ARP poisoning, DNS spoofing, plugin-based
+    attacks. The classic MITM tool.
+  risk: critical
+  install: sudo apt install ettercap-text-only -y
+  syntax: ettercap -T -q -M arp:remote /target1// /gateway//
+  flags:
+  - flag: -T
+    description: Text-only interface
+  - flag: -G
+    description: GTK GUI interface
+  - flag: -q
+    description: Quiet mode
+  - flag: -i <iface>
+    description: Interface
+  - flag: -M arp:remote
+    description: ARP MITM mode
+  - flag: -P <plugin>
+    description: Load plugin
+  examples:
+  - description: MITM host ↔ gateway
+    command: sudo ettercap -T -q -M arp:remote /192.168.1.100// /192.168.1.1//
+  - description: MITM all hosts
+    command: sudo ettercap -T -q -M arp /192.168.1.0/24//
+  - description: DNS spoofing
+    command: sudo ettercap -T -q -M arp -P dns_spoof /192.168.1.0/24//
+  - description: Passive only
+    command: sudo ettercap -T -q -i eth0 -p
+  - description: GUI mode
+    command: sudo ettercap -G
+  tips:
+  - 'Enable IP forwarding first: echo 1 > /proc/sys/net/ipv4/ip_forward'
+  - MITM attacks are ILLEGAL without permission — lab only!
+  - Bettercap is the modern successor with better performance
+- name: Bettercap
+  binary: bettercap
+  tagline: Modern Network Attack Framework — MITM, WiFi, BLE
+  description: Modern replacement for ettercap. Modular framework for MITM, WiFi deauth,
+    BLE enumeration, HTTP/HTTPS sniffing.
+  risk: critical
+  install: sudo apt install bettercap -y 2>/dev/null || (sudo apt install -y golang-go
+    libpcap-dev && go install github.com/bettercap/bettercap@latest && sudo cp ~/go/bin/bettercap
+    /usr/local/bin/)
+  syntax: bettercap -iface <interface>  (then interactive commands)
+  flags:
+  - flag: -iface <iface>
+    description: Network interface
+  - flag: -caplet <file>
+    description: Run from caplet script
+  - flag: net.probe on
+    description: Probe network for active hosts
+  - flag: arp.spoof on
+    description: Enable ARP spoofing
+  - flag: net.sniff on
+    description: Enable packet sniffing
+  - flag: dns.spoof on
+    description: Enable DNS spoofing
+  - flag: wifi.recon on
+    description: WiFi reconnaissance
+  - flag: wifi.deauth <mac>
+    description: Deauth WiFi client
+  examples:
+  - description: Start bettercap
+    command: sudo bettercap -iface eth0
+  - description: Network discovery
+    command: 'net.probe on
+
+      net.show'
+  - description: ARP poisoning MITM
+    command: 'set arp.spoof.targets 192.168.1.100
+
+      arp.spoof on
+
+      net.sniff on'
+  - description: WiFi recon
+    command: 'wifi.recon on
+
+      wifi.show'
+  - description: Deauth client
+    command: wifi.deauth AA:BB:CC:DD:EE:FF
+  - description: DNS spoof
+    command: 'set dns.spoof.domains target.com
+
+      dns.spoof on'
+  tips:
+  - echo 1 > /proc/sys/net/ipv4/ip_forward before MITM
+  - Caplet files (.cap) automate multi-step attack workflows
+  - Much more powerful than ettercap — active community

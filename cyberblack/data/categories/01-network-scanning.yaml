@@ -1,0 +1,167 @@
+id: '1'
+name: Network Scanning
+icon: 🌐
+color: cyan
+description: Discover hosts, topology, services on a network
+tools:
+- name: Nmap
+  binary: nmap
+  tagline: 'World''s #1 Network Mapper & Security Auditor'
+  description: Industry-standard tool for host discovery, port scanning, service detection,
+    OS fingerprinting and vulnerability scripting (NSE). Core tool for CEH Module
+    3, OSCP, eJPT.
+  risk: medium
+  install: sudo apt install nmap -y
+  syntax: nmap [Scan Type] [Options] {target}
+  flags:
+  - flag: -sS
+    description: TCP SYN Stealth Scan (most popular)
+  - flag: -sT
+    description: TCP Connect Scan (no root)
+  - flag: -sU
+    description: UDP Scan
+  - flag: -sV
+    description: Service/Version Detection
+  - flag: -sC
+    description: Default NSE Scripts
+  - flag: -O
+    description: OS Detection
+  - flag: -A
+    description: 'Aggressive: OS+Version+Script+Trace'
+  - flag: -p <range>
+    description: Specify ports  e.g. -p 22,80,443  or  -p 1-1000
+  - flag: -p-
+    description: Scan ALL 65535 ports
+  - flag: -T4
+    description: Fast timing template (0-5)
+  - flag: --script=vuln
+    description: Run all vulnerability NSE scripts
+  - flag: -oA <name>
+    description: Save output in all formats
+  - flag: -Pn
+    description: Skip host discovery
+  - flag: -D RND:10
+    description: Decoy scan — mask real source IP
+  examples:
+  - description: Quick scan top-1000
+    command: nmap 192.168.1.1
+  - description: Ping sweep / find live hosts
+    command: nmap -sn 192.168.1.0/24
+  - description: Full aggressive scan
+    command: sudo nmap -A -T4 192.168.1.1
+  - description: All 65535 ports
+    command: sudo nmap -p- -T4 192.168.1.1
+  - description: Vulnerability scripts
+    command: sudo nmap --script=vuln 192.168.1.1
+  - description: SMB EternalBlue check
+    command: sudo nmap --script=smb-vuln-ms17-010 -p445 192.168.1.1
+  - description: Save all formats
+    command: sudo nmap -A -T4 -oA scan_out 192.168.1.1
+  - description: UDP top-100
+    command: sudo nmap -sU --top-ports 100 192.168.1.1
+  - description: Firewall evasion decoy
+    command: sudo nmap -sS -D RND:10 -f 192.168.1.1
+  tips:
+  - sudo required for -sS (raw socket)
+  - 'OSCP: always -p- to find hidden ports'
+  - NSE scripts at /usr/share/nmap/scripts/ (600+ available)
+  - '-T4 sweet spot: fast but avoids IDS'
+- name: Masscan
+  binary: masscan
+  tagline: Fastest Internet-Scale Port Scanner (100M pkts/sec)
+  description: Scans entire IPv4 internet in under 6 minutes. Async transmission —
+    ideal for large-scale external recon.
+  risk: high
+  install: sudo apt install masscan -y
+  syntax: masscan [IP] -p [ports] --rate [n]
+  flags:
+  - flag: -p <ports>
+    description: Ports to scan
+  - flag: --rate <n>
+    description: Packets/sec (start at 1000)
+  - flag: -oL <file>
+    description: List output
+  - flag: -oX <file>
+    description: XML output
+  - flag: --banners
+    description: Grab service banners
+  - flag: --open-only
+    description: Show only open ports
+  - flag: --exclude <IP>
+    description: Exclude IP from scan
+  examples:
+  - description: All ports on one host
+    command: sudo masscan 192.168.1.1 -p0-65535
+  - description: Subnet web ports
+    command: sudo masscan 192.168.1.0/24 -p80,443 --rate=1000
+  - description: Multi-port fast
+    command: sudo masscan 192.168.1.0/24 -p21,22,80,443,3389 --rate=1000
+  - description: Banner grab
+    command: sudo masscan 192.168.1.1 -p80,443 --banners --rate=100
+  - description: XML for nmap import
+    command: sudo masscan 192.168.1.0/24 -p1-1000 --rate=1000 -oX out.xml
+  tips:
+  - Always start --rate=1000, increase slowly
+  - Masscan finds ports → nmap does deep analysis
+  - Use --exclude to avoid scanning your own IP
+- name: Netdiscover
+  binary: netdiscover
+  tagline: Active/Passive ARP Network Host Discovery
+  description: Discovers live hosts on LAN using ARP. Works in active (sends ARP)
+    or passive (listen only) mode.
+  risk: low
+  install: sudo apt install netdiscover -y
+  syntax: netdiscover [-i interface] [-r range] [-p passive]
+  flags:
+  - flag: -i <iface>
+    description: Interface (eth0, wlan0)
+  - flag: -r <range>
+    description: IP range to scan
+  - flag: -p
+    description: Passive mode — no packets sent
+  - flag: -f
+    description: Fast mode
+  - flag: -s <ms>
+    description: Delay between packets
+  examples:
+  - description: Auto-detect local network
+    command: sudo netdiscover
+  - description: Specific subnet
+    command: sudo netdiscover -r 192.168.1.0/24
+  - description: Passive/stealth mode
+    command: sudo netdiscover -p
+  - description: Specific interface
+    command: sudo netdiscover -i eth0 -r 10.0.0.0/8
+  tips:
+  - Passive -p is completely stealth (no packets)
+  - ARP only works on local subnet
+  - Quick LAN inventory before running nmap
+- name: Arp-Scan
+  binary: arp-scan
+  tagline: ARP Scanner — Finds Hosts That Block ICMP Ping
+  description: Sends ARP requests to discover live hosts. Shows MAC + vendor. More
+    reliable than ping on local networks.
+  risk: low
+  install: sudo apt install arp-scan -y
+  syntax: arp-scan [options] [range]
+  flags:
+  - flag: -l / --localnet
+    description: Scan entire local network
+  - flag: -I <iface>
+    description: Specify interface
+  - flag: --retry=<n>
+    description: Retry count per host
+  - flag: --ignoredups
+    description: Ignore duplicate replies
+  examples:
+  - description: Scan local network
+    command: sudo arp-scan --localnet
+  - description: Specific interface
+    command: sudo arp-scan -I eth0 --localnet
+  - description: Find Apple devices
+    command: sudo arp-scan --localnet | grep -i apple
+  - description: Specific subnet
+    command: sudo arp-scan 192.168.1.0/24
+  tips:
+  - Vendor lookup from MAC is built-in — great for device profiling
+  - Faster than nmap ping sweep for pure LAN discovery
