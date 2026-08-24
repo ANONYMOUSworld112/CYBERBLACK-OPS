@@ -116,7 +116,7 @@ def main() -> None:
                 if cat is not None:
                     category_loop(registry, cat)
                 else:
-                    console.print("[red]Invalid selection -- enter 1-10, N, C, or 0.[/red]")
+                    console.print(f"[red]Invalid selection -- enter 1-{len(registry.categories)}, N, C, or 0.[/red]")
                     time.sleep(0.8)
 
 
