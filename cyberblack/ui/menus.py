@@ -32,6 +32,7 @@ def show_main_menu(registry: ToolRegistry) -> None:
             f"[{cat.color}]{cat.name}[/{cat.color}] [green]{installed}/{total}[/green]",
             cat.description,
         ))
+    rows.append(("S", "🎭", "[bold bright_magenta]StegoForge Suite[/bold bright_magenta]", "Built-in steganography, digital watermarking & steganalysis wizard"))
     rows.append(("N", "", "[bold green]Network Monitor[/bold green]", "Real-time monitor your own device's network traffic"))
     rows.append(("C", "", "[bold yellow]Check Installed Tools[/bold yellow]", "See which tools are installed / missing"))
     rows.append(("0", "", "[bold red]Exit[/bold red]", "Quit CyberBlack"))
@@ -88,6 +89,7 @@ def show_category_menu(category: ToolCategory) -> None:
 
 
 def show_tool_detail(tool: Tool, category_color: str = "cyan") -> None:
+    """Render the detail view for a single tool. Shows [W] wizard action for stegoforge tools."""
     clear_screen()
 
     console.print(build_panel(
@@ -107,7 +109,7 @@ def show_tool_detail(tool: Tool, category_color: str = "cyan") -> None:
     console.print(meta)
     console.print(Rule(style="dim"))
 
-    console.print(f"\n[bold yellow]  KEY FLAGS & OPTIONS[/bold yellow]")
+    console.print("\n[bold yellow]  KEY FLAGS & OPTIONS[/bold yellow]")
     console.print(build_table(
         columns=[("Flag", {"style": "bold green", "width": 28}), ("Description", {"style": "white", "width": 52})],
         rows=[(f.flag, f.description) for f in tool.flags],
@@ -115,7 +117,7 @@ def show_tool_detail(tool: Tool, category_color: str = "cyan") -> None:
     ))
     console.print(Rule(style="dim"))
 
-    console.print(f"\n[bold yellow]  USAGE EXAMPLES[/bold yellow]")
+    console.print("\n[bold yellow]  USAGE EXAMPLES[/bold yellow]")
     console.print(build_table(
         columns=[("#", {"style": "bold yellow", "width": 4, "justify": "right"}), ("Description", {"style": "bold white", "width": 28}), ("Command", {"style": "bold green", "width": 52})],
         rows=[(str(i), e.description, e.command) for i, e in enumerate(tool.examples, 1)],
@@ -123,18 +125,20 @@ def show_tool_detail(tool: Tool, category_color: str = "cyan") -> None:
     ))
     console.print(Rule(style="dim"))
 
-    console.print(f"\n[bold yellow]  PRO TIPS[/bold yellow]")
+    console.print("\n[bold yellow]  PRO TIPS[/bold yellow]")
     for tip in tool.tips:
         console.print(f"   [cyan]*[/cyan] {tip}")
     console.print()
 
-    console.print(build_panel(
+    actions = (
         "[bold yellow][R][/bold yellow] Run command   "
         "[bold yellow][E][/bold yellow] Run an example   "
         "[bold yellow][I][/bold yellow] Install tool   "
-        "[bold yellow][B][/bold yellow] Back",
-        border_style="dim",
-    ))
+    )
+    if tool.binary.lower() == "stegoforge" or "stegoforge" in tool.name.lower():
+        actions += "[bold yellow][W][/bold yellow] Wizard   "
+    actions += "[bold yellow][B][/bold yellow] Back"
+    console.print(build_panel(actions, border_style="dim"))
 
 
 def check_installed_tools(registry: ToolRegistry) -> None:

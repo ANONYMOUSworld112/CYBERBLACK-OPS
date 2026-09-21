@@ -36,6 +36,11 @@ def run_freeform(command: str, *, confirmed: bool) -> ExecutionResult:
 
 
 def _execute(command: str) -> ExecutionResult:
+    if not command or not command.strip():
+        result = ExecutionResult(command=command, error="Empty command")
+        log_execution(result)
+        return result
+
     needs_shell = any(token in command for token in _SHELL_METACHARACTERS)
     try:
         if needs_shell:
@@ -47,5 +52,8 @@ def _execute(command: str) -> ExecutionResult:
         result = ExecutionResult(command=command, interrupted=True)
     except FileNotFoundError as exc:
         result = ExecutionResult(command=command, error=str(exc))
+    except (ValueError, OSError) as exc:
+        result = ExecutionResult(command=command, error=str(exc))
     log_execution(result)
     return result
+

@@ -1,12 +1,13 @@
 """
-StegoForge — Universal Terminal-Based Steganography & Encoding Engine.
+StegoForge compatibility shim.
 
-A fully terminal-based (TUI/CLI) tool that takes any supported input file,
-auto-detects its format, and presents the operator with the set of
-steganographic embedding methods and cryptographic pre-processing options
-valid for that specific file — then performs embed/extract operations
-with integrity verification.
+StegoForge has been integrated into CyberBlack (cyberblack.stegoforge).
+This shim redirects legacy imports for backward compatibility.
 """
+from __future__ import annotations
 
-__version__ = "0.1.0"
-__author__ = "StegoForge Contributors"
+from pathlib import Path
+import cyberblack.stegoforge
+
+# Delegate subpackage discovery to cyberblack/stegoforge
+__path__ = [str(Path(cyberblack.stegoforge.__file__).parent)]

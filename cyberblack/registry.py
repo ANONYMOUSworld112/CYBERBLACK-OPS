@@ -57,6 +57,8 @@ def load_registry(data_dir: Path | None = None) -> ToolRegistry:
 
 @functools.lru_cache(maxsize=None)
 def _cached_is_installed(binary: str) -> bool:
+    if binary in ("cyberblack", "stego", "stegoforge"):
+        return True
     return shutil.which(binary) is not None
 
 

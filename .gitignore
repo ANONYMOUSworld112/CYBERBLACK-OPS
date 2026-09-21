@@ -1,8 +1,32 @@
-__pycache__
-.pytest_cache
-.mypy_cache
-.ruff_cache
-.venv
-dist
-build
-*.pyc
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# Build & packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary & Test Outputs
+temp_profile/
+hud_preview/
+*.png.tmp
+

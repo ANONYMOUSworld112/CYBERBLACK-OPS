@@ -1,7 +1,16 @@
 from __future__ import annotations
 
+import sys
 import time
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+from rich.markup import escape
 from rich.prompt import Prompt
 
 from .models import Tool, ToolCategory
@@ -13,6 +22,7 @@ from .ui.menus import (
     show_tool_detail,
     check_installed_tools,
 )
+from .stego_bridge import launch_stegoforge_wizard
 from .ui.monitor import network_monitor
 from .ui.components import console
 
@@ -28,13 +38,16 @@ def tool_action_loop(tool: Tool, category_color: str) -> None:
             case "r":
                 cmd = Prompt.ask("\n[bold green]Enter command to run[/bold green]")
                 confirm = Prompt.ask(
-                    f"[bold yellow]Run '{cmd}'? This executes on your system.[/bold yellow] [y/N]",
+                    f"[bold yellow]Run '{escape(cmd)}'? This executes on your system.[/bold yellow] [y/N]",
                     default="n",
                 ).lower()
                 if confirm == "y":
                     result = run_freeform(cmd, confirmed=True)
                     if not result.ok and not result.interrupted:
-                        console.print(f"\n[yellow]Exited with code {result.exit_code}[/yellow]")
+                        if result.error:
+                            console.print(f"\n[red]Error: {escape(result.error)}[/red]")
+                        else:
+                            console.print(f"\n[yellow]Exited with code {result.exit_code}[/yellow]")
                 else:
                     console.print("[yellow]Command cancelled.[/yellow]")
                 console.print()
@@ -47,12 +60,15 @@ def tool_action_loop(tool: Tool, category_color: str) -> None:
                     n = int(Prompt.ask("Example #")) - 1
                     if 0 <= n < len(tool.examples):
                         ex = tool.examples[n]
-                        console.print(f"\n[dim]Command: {ex.command}[/dim]")
+                        console.print(f"\n[dim]Command: {escape(ex.command)}[/dim]")
                         confirm = Prompt.ask("Run this command? [Y/n]", default="y").lower()
                         if confirm == "y":
                             result = run_trusted(ex.command)
                             if not result.ok and not result.interrupted:
-                                console.print(f"\n[yellow]Exited with code {result.exit_code}[/yellow]")
+                                if result.error:
+                                    console.print(f"\n[red]Error: {escape(result.error)}[/red]")
+                                else:
+                                    console.print(f"\n[yellow]Exited with code {result.exit_code}[/yellow]")
                         input("\n  Press ENTER to continue...")
                 except (ValueError, IndexError):
                     console.print("[red]Invalid selection.[/red]")
@@ -60,12 +76,24 @@ def tool_action_loop(tool: Tool, category_color: str) -> None:
             case "i":
                 cmd = tool.install
                 confirm = Prompt.ask(
-                    f"Install {tool.name}? This runs: {cmd} [y/N]", default="n"
+                    f"Install {escape(tool.name)}? This runs: {escape(cmd)} [y/N]", default="n"
                 ).lower()
                 if confirm == "y":
                     result = run_trusted(cmd)
                     if result.ok:
                         refresh_status_cache()
+                    else:
+                        if result.error:
+                            console.print(f"\n[red]Install failed: {escape(result.error)}[/red]")
+                        else:
+                            console.print(f"\n[red]Install failed with exit code {result.exit_code}[/red]")
+                input("\n  Press ENTER to continue...")
+            case "w":
+                if tool.binary.lower() == "stegoforge" or "stegoforge" in tool.name.lower():
+                    console.print("\n[bold cyan]Launching StegoForge interactive wizard...[/bold cyan]\n")
+                    launch_stegoforge_wizard()
+                else:
+                    console.print("[yellow]Wizard is only available for StegoForge tools.[/yellow]")
                 input("\n  Press ENTER to continue...")
             case _:
                 console.print("[red]Unknown action.[/red]")
@@ -93,6 +121,33 @@ def category_loop(registry: ToolRegistry, category: ToolCategory) -> None:
 
 
 def main() -> None:
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1].lower()
+        if first_arg in ("stego", "stegoforge", "--stego"):
+            sys.argv.pop(1)
+            from .stegoforge.cli.commands import app
+            app(prog_name="cyberblack stego")
+            return
+        elif first_arg in ("--help", "-h", "help"):
+            console.print("""[bold cyan]CYBERBLACK-OPS v2.2.0[/bold cyan] - Advanced Cybersecurity Terminal Toolkit
+
+[bold yellow]Usage:[/bold yellow]
+  cyberblack                          Launch interactive terminal workstation
+  cyberblack stego [OPTIONS] COMMAND  Built-in StegoForge steganography suite
+  cyberblack --help                   Show this help message and exit
+
+[bold yellow]Stego Subcommands (cyberblack stego --help):[/bold yellow]
+  embed         Conceal protected payload into carrier media
+  extract       Recover and authenticate hidden payload
+  analyze       Inspect carrier format and calculate live capacities
+  steganalysis  Defensive statistical and heuristic steganalysis
+  recommend     Pre-flight capacity check & explainable recommendations
+  watermark     Digital asset watermarking & HMAC-SHA256 verification
+  lab           Run comparative steganography benchmark matrix
+  plugins       List and inspect format/cipher plugins
+""")
+            return
+
     try:
         registry = load_registry()
     except Exception as exc:
@@ -107,6 +162,8 @@ def main() -> None:
             case "0":
                 console.print("\n[bold cyan]  Thank you for using CyberBlack. Stay ethical. Stay legal.[/bold cyan]\n")
                 break
+            case "s" | "stego" | "stegoforge":
+                launch_stegoforge_wizard()
             case "n":
                 network_monitor()
             case "c":
@@ -116,7 +173,7 @@ def main() -> None:
                 if cat is not None:
                     category_loop(registry, cat)
                 else:
-                    console.print(f"[red]Invalid selection -- enter 1-{len(registry.categories)}, N, C, or 0.[/red]")
+                    console.print(f"[red]Invalid selection -- enter 1-{len(registry.categories)}, S, N, C, or 0.[/red]")
                     time.sleep(0.8)
 
 

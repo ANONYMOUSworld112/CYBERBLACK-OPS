@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import platform
 from datetime import datetime
+from importlib.metadata import PackageNotFoundError, version
 
 from rich.align import Align
 from rich.panel import Panel
@@ -11,6 +12,11 @@ from rich import box
 from ..util import local_ip
 from .components import console
 
+try:
+    VERSION = version("cyberblack")
+except PackageNotFoundError:
+    VERSION = "2.2.0"
+
 _ASCII_ART = r"""
 [bold cyan] ██████╗██╗   ██╗██████╗ ███████╗██████╗     ██████╗ ██╗      █████╗  ██████╗██╗  ██╗[/bold cyan]
 [bold cyan]██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗    ██╔══██╗██║     ██╔══██╗██╔════╝██║ ██╔╝[/bold cyan]
@@ -19,7 +25,7 @@ _ASCII_ART = r"""
 [bold cyan]╚██████╗   ██║   ██████╔╝███████╗██║  ██║    ██████╔╝███████╗██║  ██║╚██████╗██║  ██╗[/bold cyan]
 [bold cyan] ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝[/bold cyan]"""
 
-VERSION = "2.1.0"
+
 
 
 def show_banner() -> None:
