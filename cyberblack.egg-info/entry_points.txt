@@ -1,2 +1,0 @@
-[console_scripts]
-cyberblack = cyberblack.cli:main

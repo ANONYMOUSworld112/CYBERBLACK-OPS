@@ -5,12 +5,12 @@ color: bright_magenta
 description: Data hiding, cryptographic carrier encapsulation, digital watermarking, and defensive steganalysis
 tools:
 - name: StegoForge
-  binary: stegoforge
+  binary: cyberblack
   tagline: Universal Multimedia Steganography & Concealment Engine
   description: Modular steganography & AEAD encryption platform supporting lossless images (PNG, BMP, GIF), lossy JPEG (DCT), uncompressed WAV audio, PDF/OOXML documents, ZIP extra-fields, and EOF append with Argon2id + AES-256-GCM / ChaCha20 protection.
   risk: low
-  install: pip install -e /path/to/stegoforge
-  syntax: stegoforge [command] [options]
+  install: Built-in with CyberBlack
+  syntax: cyberblack stego [command] [options]
   flags:
   - flag: embed -i <carrier> -m <method> -c <cipher> --payload-file <file>
     description: Embed protected payload into carrier media
@@ -26,46 +26,46 @@ tools:
     description: Package and conceal multiple payloads into single carrier
   examples:
   - description: Interactive TUI Wizard
-    command: stegoforge
+    command: cyberblack stego
   - description: Embed file with AES-256-GCM + Argon2id
-    command: stegoforge embed -i carrier.png -m lsb-spatial -c aes-256-gcm --payload-file secret.pdf -o stego.png
+    command: cyberblack stego embed -i carrier.png -m lsb-spatial -c aes-256-gcm --payload-file secret.pdf -o stego.png
   - description: Extract payload from stego carrier
-    command: stegoforge extract -i stego.png -o recovered.pdf
+    command: cyberblack stego extract -i stego.png -o recovered.pdf
   - description: Pre-flight capacity & algorithm recommendation
-    command: stegoforge recommend -c carrier.png -s 5000
+    command: cyberblack stego recommend -c carrier.png -s 5000
   - description: Carrier capacity analysis
-    command: stegoforge analyze -i carrier.wav
+    command: cyberblack stego analyze -i carrier.wav
   tips:
   - Always check capacity before embedding to ensure payload fits without truncation.
   - Multi-payload bundling automatically packages files with SHA-256 integrity verification.
   - Compression occurs before encryption for maximum efficiency.
 
 - name: StegoForge Steganalysis
-  binary: stegoforge
+  binary: cyberblack
   tagline: Defensive Forensics & Statistical Entropy Scanner
   description: Defensive cybersecurity steganalysis tool. Analyzes global and sliding-block Shannon entropy, Chi-Square (Pairs of Values) LSB distribution, trailing unreferenced EOF bytes, known steganographic signatures, and generates risk scores (0-100).
   risk: low
-  install: pip install -e /path/to/stegoforge
-  syntax: stegoforge steganalysis -i <file>
+  install: Built-in with CyberBlack
+  syntax: cyberblack stego steganalysis -i <file>
   flags:
   - flag: -i <file>
     description: Target carrier or suspicious file to analyze
   examples:
   - description: Full forensic steganalysis scan
-    command: stegoforge steganalysis -i suspicious.png
+    command: cyberblack stego steganalysis -i suspicious.png
   - description: Inspect potential stego document
-    command: stegoforge steganalysis -i invoice.pdf
+    command: cyberblack stego steganalysis -i invoice.pdf
   tips:
   - Shannon entropy > 7.92 bits/byte in non-compressed regions indicates encrypted/hidden data.
   - High suspicion score indicates presence of known steganography envelopes or trailing EOF payloads.
 
 - name: StegoForge Watermark
-  binary: stegoforge
+  binary: cyberblack
   tagline: Cryptographic Digital Watermarking & Asset Authenticity
   description: Signs digital assets with HMAC-SHA256 owner signatures, timestamps, and metadata to verify authenticity, track provenance, and detect tampering.
   risk: low
-  install: pip install -e /path/to/stegoforge
-  syntax: stegoforge watermark [embed|verify] [options]
+  install: Built-in with CyberBlack
+  syntax: cyberblack stego watermark [embed|verify] [options]
   flags:
   - flag: embed -i <carrier> --owner <name> -k <secret_key>
     description: Embed signed digital watermark into asset
@@ -75,28 +75,28 @@ tools:
     description: Optional copyright or asset description metadata
   examples:
   - description: Embed cryptographic watermark
-    command: stegoforge watermark embed -i asset.png --owner "CyberBlack Ops" -k "SuperSecretKey123"
+    command: cyberblack stego watermark embed -i asset.png --owner "CyberBlack Ops" -k "SuperSecretKey123"
   - description: Verify asset authenticity
-    command: stegoforge watermark verify -i watermarked_asset.png -k "SuperSecretKey123"
+    command: cyberblack stego watermark verify -i watermarked_asset.png -k "SuperSecretKey123"
   tips:
   - Watermarking is separate from hidden payload storage and focuses on authenticity verification.
   - Any tampering with the asset invalidates the HMAC signature during verification.
 
 - name: StegoForge Research Lab
-  binary: stegoforge
+  binary: cyberblack
   tagline: Steganography Algorithm Benchmark & Quality Matrix
   description: Runs automated comparative benchmarks across all compatible steganographic methods for a carrier. Measures capacity, embedding throughput, extraction latency, PSNR (dB), SSIM, and visual distortion.
   risk: low
-  install: pip install -e /path/to/stegoforge
-  syntax: stegoforge lab -c <carrier_file>
+  install: Built-in with CyberBlack
+  syntax: cyberblack stego lab -c <carrier_file>
   flags:
   - flag: -c <carrier>
     description: Carrier media file to benchmark
   examples:
   - description: Benchmark image steganography algorithms
-    command: stegoforge lab -c cover.png
+    command: cyberblack stego lab -c cover.png
   - description: Benchmark audio steganography algorithms
-    command: stegoforge lab -c sample.wav
+    command: cyberblack stego lab -c sample.wav
   tips:
   - PSNR > 45 dB and SSIM > 0.999 indicate imperceptible visual distortion.
   - Compares spatial LSB, transform-domain DCT, audio sample modulation, and structural techniques.

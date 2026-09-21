@@ -31,40 +31,38 @@ dev = [
 
 [project.scripts]
 cyberblack = "cyberblack.cli:main"
-stegoforge = "stegoforge.cli.commands:app"
 
 [project.entry-points."stegoforge.methods"]
-eof_append = "stegoforge.methods.generic.eof_append:EofAppendMethod"
-lsb_spatial = "stegoforge.methods.image.lsb_spatial:LsbSpatialMethod"
-dct_jpeg = "stegoforge.methods.image.dct_jpeg:DctJpegMethod"
-lsb_sample = "stegoforge.methods.audio.lsb_sample:LsbSampleMethod"
-echo_hide = "stegoforge.methods.audio.echo_hide:EchoHideMethod"
-phase_coding = "stegoforge.methods.audio.phase_coding:PhaseCodingMethod"
-whitespace = "stegoforge.methods.text.whitespace:WhitespaceMethod"
-zero_width = "stegoforge.methods.text.zero_width:ZeroWidthMethod"
-pdf_metadata = "stegoforge.methods.documents.pdf_metadata:PdfMetadataMethod"
-ooxml_part = "stegoforge.methods.documents.ooxml_part:OoxmlPartMethod"
-zip_extrafield = "stegoforge.methods.archive.zip_extrafield:ZipExtraFieldMethod"
+eof_append = "cyberblack.stegoforge.methods.generic.eof_append:EofAppendMethod"
+lsb_spatial = "cyberblack.stegoforge.methods.image.lsb_spatial:LsbSpatialMethod"
+dct_jpeg = "cyberblack.stegoforge.methods.image.dct_jpeg:DctJpegMethod"
+lsb_sample = "cyberblack.stegoforge.methods.audio.lsb_sample:LsbSampleMethod"
+echo_hide = "cyberblack.stegoforge.methods.audio.echo_hide:EchoHideMethod"
+phase_coding = "cyberblack.stegoforge.methods.audio.phase_coding:PhaseCodingMethod"
+whitespace = "cyberblack.stegoforge.methods.text.whitespace:WhitespaceMethod"
+zero_width = "cyberblack.stegoforge.methods.text.zero_width:ZeroWidthMethod"
+pdf_metadata = "cyberblack.stegoforge.methods.documents.pdf_metadata:PdfMetadataMethod"
+ooxml_part = "cyberblack.stegoforge.methods.documents.ooxml_part:OoxmlPartMethod"
+zip_extrafield = "cyberblack.stegoforge.methods.archive.zip_extrafield:ZipExtraFieldMethod"
 
 [project.entry-points."stegoforge.ciphers"]
-aes_gcm = "stegoforge.ciphers.aes_gcm:AesGcmCipher"
-chacha20 = "stegoforge.ciphers.chacha20:ChaCha20Cipher"
-base64_enc = "stegoforge.ciphers.encoding_only:Base64Encoding"
-base85_enc = "stegoforge.ciphers.encoding_only:Base85Encoding"
-xor = "stegoforge.ciphers.cipher_lab.xor_cipher:XorCipher"
-caesar = "stegoforge.ciphers.cipher_lab.caesar:CaesarCipher"
-vigenere = "stegoforge.ciphers.cipher_lab.vigenere:VigenereCipher"
-rail_fence = "stegoforge.ciphers.cipher_lab.rail_fence:RailFenceCipher"
+aes_gcm = "cyberblack.stegoforge.ciphers.aes_gcm:AesGcmCipher"
+chacha20 = "cyberblack.stegoforge.ciphers.chacha20:ChaCha20Cipher"
+base64_enc = "cyberblack.stegoforge.ciphers.encoding_only:Base64Encoding"
+base85_enc = "cyberblack.stegoforge.ciphers.encoding_only:Base85Encoding"
+xor = "cyberblack.stegoforge.ciphers.cipher_lab.xor_cipher:XorCipher"
+caesar = "cyberblack.stegoforge.ciphers.cipher_lab.caesar:CaesarCipher"
+vigenere = "cyberblack.stegoforge.ciphers.cipher_lab.vigenere:VigenereCipher"
+rail_fence = "cyberblack.stegoforge.ciphers.cipher_lab.rail_fence:RailFenceCipher"
 
 [tool.setuptools.packages.find]
 include = ["cyberblack*", "stegoforge*"]
 
 [tool.setuptools.package-data]
-cyberblack = ["data/categories/*.yaml"]
-stegoforge = ["docs/*.md"]
+cyberblack = ["data/categories/*.yaml", "stegoforge/docs/*.md"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "stegoforge/tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

@@ -33,6 +33,7 @@ def build_table(
     border_style: str = "cyan",
     show_lines: bool = False,
     show_header: bool = True,
+    title_style: str | None = None,
 ) -> Table:
     table = Table(
         title=title,
@@ -41,6 +42,7 @@ def build_table(
         padding=(0, 1),
         show_lines=show_lines,
         show_header=show_header,
+        title_style=title_style,
     )
     for header, kwargs in columns:
         table.add_column(header, **kwargs)
